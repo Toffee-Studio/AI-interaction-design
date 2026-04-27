@@ -1,5 +1,5 @@
 {
-  "name": "@toffee-studio/ai-interaction-design",
+  "name": "@toffee.studio/ai-interaction-design",
   "version": "0.1.0",
   "description": "AI interaction design components for React and Next.js — shimmer, streaming text, generative image, and more by Toffee Studio.",
   "license": "MIT",

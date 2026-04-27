@@ -1,4 +1,4 @@
-# @toffee-studio/ai-interaction-design
+# @toffee.studio/ai-interaction-design
 
 AI interaction design components for React and Next.js by [Toffee Studio](https://github.com/Toffee-Studio).
 
@@ -9,7 +9,7 @@ Shimmer text, token-streaming, generative image reveals — all with a unified A
 ## Install
 
 ```bash
-npm install @toffee-studio/ai-interaction-design @emotion/react
+npm install @toffee.studio/ai-interaction-design @emotion/react
 ```
 
 ---
@@ -21,7 +21,7 @@ npm install @toffee-studio/ai-interaction-design @emotion/react
 ```tsx
 // app/layout.tsx
 'use client'
-import { ToffeeProvider } from '@toffee-studio/ai-interaction-design'
+import { ToffeeProvider } from '@toffee.studio/ai-interaction-design'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```tsx
 'use client'
-import { ShimmerText } from '@toffee-studio/ai-interaction-design/client'
+import { ShimmerText } from '@toffee.studio/ai-interaction-design/client'
 
 export function LoadingLabel() {
   return (
@@ -171,8 +171,8 @@ const { displayedText, done, pause, reset } = useStreamingText({
 
 | Import | Contents |
 |--------|----------|
-| `@toffee-studio/ai-interaction-design` | ToffeeProvider, types, tokens (server-safe) |
-| `@toffee-studio/ai-interaction-design/client` | ShimmerText, StreamingText, GenerativeImage, hooks (client-only) |
+| `@toffee.studio/ai-interaction-design` | ToffeeProvider, types, tokens (server-safe) |
+| `@toffee.studio/ai-interaction-design/client` | ShimmerText, StreamingText, GenerativeImage, hooks (client-only) |
 
 ---
 
