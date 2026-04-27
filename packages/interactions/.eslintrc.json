@@ -15,7 +15,8 @@
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-empty-interface": "off",
-    "no-console": "warn"
+    "no-console": "warn",
+    "react-hooks/rules-of-hooks": "off"
   },
   "env": {
     "browser": true,

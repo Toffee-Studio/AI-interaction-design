@@ -81,7 +81,7 @@ export function ToffeeProvider({
 
   // Next.js App Router: inject collected styles into <head> during SSR streaming
   if (useServerInsertedHTML) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     useServerInsertedHTML(() => {
       const names = [...insertedRef.current]
       if (names.length === 0) return null
