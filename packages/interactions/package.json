@@ -1,0 +1,93 @@
+{
+  "name": "@toffee-studio/ai-interaction-design",
+  "version": "0.1.0",
+  "description": "AI interaction design components for React and Next.js — shimmer, streaming text, generative image, and more by Toffee Studio.",
+  "license": "MIT",
+  "author": "Toffee Studio",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Toffee-Studio/AI-interaction-design.git"
+  },
+  "homepage": "https://github.com/Toffee-Studio/AI-interaction-design",
+  "bugs": {
+    "url": "https://github.com/Toffee-Studio/AI-interaction-design/issues"
+  },
+  "keywords": [
+    "react",
+    "nextjs",
+    "ai",
+    "interaction-design",
+    "shimmer",
+    "shimmer-text",
+    "streaming-text",
+    "generative-image",
+    "animation",
+    "loading",
+    "ai-effects",
+    "toffee-studio",
+    "emotion",
+    "ssr"
+  ],
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js",
+      "require": "./dist/client.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@emotion/react": ">=11",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^15.0.6",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@vitest/coverage-v8": "^4.1.5",
+    "eslint": "^8.57.0",
+    "jsdom": "^29.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  },
+  "dependencies": {
+    "@emotion/cache": ">=11"
+  }
+}

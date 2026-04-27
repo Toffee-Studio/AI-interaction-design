@@ -1,0 +1,24 @@
+{
+  "name": "toffee-interactions-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=packages/interactions",
+    "dev": "npm run dev --workspace=packages/interactions",
+    "test": "npm run test --workspace=packages/interactions",
+    "lint": "npm run lint --workspace=packages/interactions",
+    "typecheck": "npm run typecheck --workspace=packages/interactions",
+    "storybook": "npm run storybook --workspace=apps/storybook",
+    "docs": "npm run dev --workspace=apps/docs"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,5 @@
+export { speedMap, resolveSpeed } from './speed'
+export { toneMap, resolveToneVars } from './tone'
+export type { ToneName } from './tone'
+export { easingMap } from './easing'
+export type { EasingName } from './easing'
