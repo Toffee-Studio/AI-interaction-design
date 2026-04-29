@@ -24,5 +24,6 @@ export {
   unblurKeyframe,
   shimmerGradient,
   buildAnimation,
+  createPixelEffect,
 } from './primitives'
-export type { BuildAnimationOptions } from './primitives'
+export type { BuildAnimationOptions, PixelEffectOptions, PixelEffectInstance } from './primitives'
