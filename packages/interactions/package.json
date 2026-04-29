@@ -1,6 +1,6 @@
 {
   "name": "@toffee.studio/ai-interaction-design",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AI interaction design components for React and Next.js — shimmer text, streaming text, generative image blur, pixel reconstruction effects, and more by Toffee Studio.",
   "license": "MIT",
   "author": "Toffee Studio",

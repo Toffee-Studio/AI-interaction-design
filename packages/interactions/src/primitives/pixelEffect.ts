@@ -38,6 +38,12 @@ export interface PixelEffectOptions {
   glow?: boolean
   /** Glow blur radius in px (only used when glow is true). Default: 6 */
   glowRadius?: number
+  /**
+   * Max canvas width for particle sampling. The source image is downscaled
+   * to this width before sampling — caps particle count regardless of image
+   * size. The real image still renders at full quality. Default: 320
+   */
+  maxCanvasWidth?: number
   /** Called when the real image is fully visible */
   onComplete?: () => void
 }
@@ -100,21 +106,27 @@ export async function createPixelEffect(
     overflow = 0.15,
     glow = false,
     glowRadius = 6,
+    maxCanvasWidth = 320,
     onComplete,
   } = options
 
   // ── Load & sample ───────────────────────────────────────────────────────
 
   const srcImg = await loadImage(image)
-  const W = srcImg.naturalWidth
-  const H = srcImg.naturalHeight
+
+  // Scale down to maxCanvasWidth to cap particle count.
+  // At gap=4 and 320px wide: ~3k–6k particles — smooth 60fps.
+  // The real <img> still shows at full resolution.
+  const scale = Math.min(1, maxCanvasWidth / srcImg.naturalWidth)
+  const W = Math.round(srcImg.naturalWidth * scale)
+  const H = Math.round(srcImg.naturalHeight * scale)
 
   const offCanvas = document.createElement('canvas')
   offCanvas.width = W
   offCanvas.height = H
   const offCtx = offCanvas.getContext('2d', { willReadFrequently: true })
   if (!offCtx) throw new Error('Could not get 2D context')
-  offCtx.drawImage(srcImg, 0, 0, W, H)
+  offCtx.drawImage(srcImg, 0, 0, W, H)  // draws at scaled-down size
   const px = offCtx.getImageData(0, 0, W, H).data
 
   // Count particles
