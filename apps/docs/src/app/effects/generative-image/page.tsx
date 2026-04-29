@@ -1,41 +1,80 @@
 'use client'
 
-import React, { useState } from 'react'
-import { GenerativeImage } from '@toffee.studio/ai-interaction-design/client'
+import React, { useState, useRef, useEffect } from 'react'
+import {
+  GenerativeImage,
+  createPixelEffect,
+  type PixelEffectInstance,
+} from '@toffee.studio/ai-interaction-design/client'
 import { t } from '@/theme'
-import { DemoBox } from '@/components/DemoBox'
-import { CodeBlock } from '@/components/CodeBlock'
 import { PropsTable } from '@/components/PropsTable'
+import { PropShowcase } from '@/components/PropShowcase'
 
-const SAMPLE_IMAGE = 'https://images.unsplash.com/photo-1676299081847-824916de030a?w=512&h=512&fit=crop'
-const SAMPLE_IMAGE_2 = 'https://images.unsplash.com/photo-1686191128892-3b37add4c844?w=512&h=512&fit=crop'
-const SAMPLE_IMAGE_3 = 'https://images.unsplash.com/photo-1684487747720-1ba29cda82c8?w=400&h=400&fit=crop'
+const IMG = '/AI generation effect .jpg'
 
-function ReloadableImage({
-  src, alt, tone, speed, variant, width, height, label,
+// ─── React Preview wrappers ───────────────────────────────────────────────────
+
+function PixelPreview({
+  gap = 4, particleSize = 4,
+  loadingDuration = 1500, assemblyDuration = 2000,
+  easeSpeed = 0.06, glow = false, glowRadius = 6,
 }: {
-  src: string; alt: string; tone: 'neutral' | 'brand' | 'muted'; speed: 'slow' | 'normal' | 'fast'
-  variant?: 'default' | 'soft' | 'strong'; width: number; height: number; label: string
+  gap?: number; particleSize?: number
+  loadingDuration?: number; assemblyDuration?: number
+  easeSpeed?: number; glow?: boolean; glowRadius?: number
 }) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const instanceRef = useRef<PixelEffectInstance | null>(null)
   const [key, setKey] = useState(0)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    instanceRef.current?.destroy()
+    instanceRef.current = null
+    let cancelled = false
+
+    createPixelEffect({
+      container: el, image: IMG,
+      gap, particleSize, loadingDuration, assemblyDuration, easeSpeed, glow, glowRadius,
+    }).then((inst) => {
+      if (cancelled) { inst.destroy(); return }
+      instanceRef.current = inst
+      inst.start()
+    }).catch(() => {})
+
+    return () => { cancelled = true; instanceRef.current?.destroy(); instanceRef.current = null }
+  }, [gap, particleSize, loadingDuration, assemblyDuration, easeSpeed, glow, glowRadius, key])
+
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <span style={{ fontSize: 11, color: t.textMuted }}>{label}</span>
-        <button
-          onClick={() => setKey((k) => k + 1)}
-          style={{
-            padding: '2px 8px', borderRadius: 4, border: `1px solid ${t.border}`,
-            background: 'none', color: t.textMuted, fontSize: 10, fontFamily: t.font, cursor: 'pointer',
-          }}
-        >
-          ↻ reload
-        </button>
-      </div>
-      <GenerativeImage key={key} src={`${src}&v=${key}`} alt={alt} width={width} height={height} tone={tone} speed={speed} variant={variant} />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: '100%' }}>
+      <div ref={containerRef} style={{ width: 200, height: 251, borderRadius: 8, overflow: 'hidden', background: '#E8E8E8', position: 'relative' }} />
+      <button
+        onClick={() => instanceRef.current ? instanceRef.current.replay() : setKey((k) => k + 1)}
+        style={{ padding: '5px 14px', borderRadius: 6, border: `1px solid ${t.borderCard}`, background: '#F4F4F5', color: t.textSecondary, fontSize: 11, fontFamily: t.font, cursor: 'pointer' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#EBEBEC' }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#F4F4F5' }}
+      >
+        ↻ Replay
+      </button>
     </div>
   )
 }
+
+function BlurPreview({ speed, tone }: { speed?: 'slow' | 'normal' | 'fast'; tone?: 'neutral' | 'brand' | 'muted' }) {
+  const [key, setKey] = useState(0)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, width: '100%' }}>
+      <GenerativeImage key={key} src={`${IMG}?v=${key}`} alt="AI generated" width={200} height={251} speed={speed ?? 'slow'} tone={tone ?? 'neutral'} />
+      <button onClick={() => setKey((k) => k + 1)} style={{ padding: '5px 14px', borderRadius: 6, border: `1px solid ${t.borderCard}`, background: '#F4F4F5', color: t.textSecondary, fontSize: 11, fontFamily: t.font, cursor: 'pointer' }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#EBEBEC' }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#F4F4F5' }}
+      >↻ Replay</button>
+    </div>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function GenerativeImagePage() {
   return (
@@ -44,59 +83,92 @@ export default function GenerativeImagePage() {
         GenerativeImage
       </h1>
       <p style={{ fontSize: 15, lineHeight: 1.7, color: t.textSecondary, margin: '0 0 40px' }}>
-        Blur-to-sharp image reveal with scan-line loading — mimics AI image generators like Midjourney or DALL-E.
+        Image reveal effects that mimic AI generation — particles drift freely then assemble into the image from top to bottom, resolving into the original.
       </p>
 
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '0 0 8px' }}>Basic Usage</h2>
-      <DemoBox label="Preview">
-        <ReloadableImage src={SAMPLE_IMAGE} alt="AI generated landscape" tone="brand" speed="slow" width={400} height={300} label="brand · slow" />
-      </DemoBox>
-      <CodeBlock code={`import { GenerativeImage } from '@toffee.studio/ai-interaction-design/client'\n\n<GenerativeImage\n  src="/ai-output.jpg"\n  alt="AI generated landscape"\n  width={400}\n  height={300}\n  tone="brand"\n  speed="slow"\n/>`} />
-
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '32px 0 8px' }}>Tones</h2>
-      <DemoBox label="neutral / brand / muted">
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {(['neutral', 'brand', 'muted'] as const).map((tone) => (
-            <ReloadableImage key={tone} src={SAMPLE_IMAGE_3} alt={`${tone} tone`} tone={tone} speed="normal" width={200} height={200} label={tone} />
-          ))}
-        </div>
-      </DemoBox>
-
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '32px 0 8px' }}>Variants</h2>
-      <DemoBox label="default / soft / strong">
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {([['default', '8px radius'], ['soft', '12px radius'], ['strong', '4px radius']] as const).map(([v, desc]) => (
-            <ReloadableImage key={v} src={SAMPLE_IMAGE_2} alt={`${v} variant`} tone="brand" speed="normal" variant={v} width={200} height={200} label={`${v} (${desc})`} />
-          ))}
-        </div>
-      </DemoBox>
-
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '32px 0 8px' }}>With Overlay Slot</h2>
-      <DemoBox label="overlay badge">
-        <ReloadableImage src={SAMPLE_IMAGE} alt="AI generated with badge" tone="brand" speed="slow" width={400} height={300} label="with overlay" />
-        <p style={{ fontSize: 12, color: t.textMuted, marginTop: 12 }}>
-          Use the overlay slot to add badges, progress indicators, or any custom UI over the image.
-        </p>
-      </DemoBox>
-      <CodeBlock code={`<GenerativeImage\n  src="/ai-output.jpg"\n  alt="AI generated landscape"\n  width={512}\n  height={512}\n  tone="brand"\n  speed="slow"\n  slots={{\n    overlay: ({ loaded }) =>\n      loaded ? (\n        <div style={{\n          position: 'absolute',\n          bottom: 12,\n          right: 12,\n          background: 'rgba(0,0,0,0.6)',\n          color: '#fff',\n          padding: '4px 10px',\n          borderRadius: 6,\n          fontSize: 11,\n        }}>\n          ✦ Generated\n        </div>\n      ) : null,\n  }}\n/>`} />
-
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '32px 0 8px' }}>Props</h2>
-      <PropsTable
-        rows={[
-          { name: 'src', type: 'string', defaultVal: '—', description: 'Image URL (required)' },
-          { name: 'alt', type: 'string', defaultVal: '—', description: 'Accessibility label (required)' },
-          { name: 'width', type: 'number | string', defaultVal: '—', description: 'Frame width (required)' },
-          { name: 'height', type: 'number | string', defaultVal: '—', description: 'Frame height (required)' },
-          { name: 'variant', type: "'default' | 'soft' | 'strong'", defaultVal: "'default'", description: 'Border radius style' },
-          { name: 'speed', type: "'slow' | 'normal' | 'fast' | number", defaultVal: "'normal'", description: 'Reveal animation speed' },
-          { name: 'tone', type: "'neutral' | 'brand' | 'muted'", defaultVal: "'neutral'", description: 'Placeholder color palette' },
-          { name: 'reducedMotion', type: "boolean | 'auto'", defaultVal: "'auto'", description: 'Motion override' },
-          { name: 'onLoad', type: '(e) => void', defaultVal: '—', description: 'Called when image loads' },
-          { name: 'onError', type: '(e) => void', defaultVal: '—', description: 'Called on load error' },
-          { name: 'slots.placeholder', type: 'ReactNode', defaultVal: 'built-in', description: 'Custom loading placeholder' },
-          { name: 'slots.overlay', type: '({loaded, error, progress}) => ReactNode', defaultVal: '—', description: 'Overlay render prop' },
+      {/* ── Effects ── */}
+      <PropShowcase chatUI={false} height={380} title="Effects"
+        description="Blur uses CSS animations. Pixel uses a Canvas 2D particle engine with a loading → assembly → reveal flow."
+        variants={[
+          { label: 'blur', preview: <BlurPreview />, tsx: `<GenerativeImage\n  src="/ai-output.jpg"\n  alt="AI generated"\n  width={400}\n  height={300}\n  effect="blur"\n  speed="slow"\n/>` },
+          { label: 'pixel', preview: <PixelPreview />, tsx: `import { createPixelEffect } from '@toffee.studio/ai-interaction-design/client'\n\nconst effect = await createPixelEffect({\n  container: el,\n  image: '/ai-output.jpg',\n  gap: 4,\n  particleSize: 4,\n  loadingDuration: 1500,\n  assemblyDuration: 2000,\n})\n\neffect.start()` },
         ]}
       />
+
+      {/* ── Loading Duration ── */}
+      <PropShowcase chatUI={false} height={380} title="Loading Duration"
+        description="How long particles drift before assembly begins."
+        variants={[
+          { label: '500ms', preview: <PixelPreview loadingDuration={500} />, tsx: `createPixelEffect({ loadingDuration: 500 })` },
+          { label: '1500ms', preview: <PixelPreview loadingDuration={1500} />, tsx: `createPixelEffect({ loadingDuration: 1500 })` },
+          { label: '3000ms', preview: <PixelPreview loadingDuration={3000} />, tsx: `createPixelEffect({ loadingDuration: 3000 })` },
+        ]}
+      />
+
+      {/* ── Assembly Duration ── */}
+      <PropShowcase chatUI={false} height={380} title="Assembly Duration"
+        description="How long the top-to-bottom assembly wave takes."
+        variants={[
+          { label: '1000ms', preview: <PixelPreview assemblyDuration={1000} />, tsx: `createPixelEffect({ assemblyDuration: 1000 })` },
+          { label: '2000ms', preview: <PixelPreview assemblyDuration={2000} />, tsx: `createPixelEffect({ assemblyDuration: 2000 })` },
+          { label: '4000ms', preview: <PixelPreview assemblyDuration={4000} />, tsx: `createPixelEffect({ assemblyDuration: 4000 })` },
+        ]}
+      />
+
+      {/* ── Pixel Density ── */}
+      <PropShowcase chatUI={false} height={380} title="Pixel Density"
+        description="Lower gap = more particles = finer detail."
+        variants={[
+          { label: 'gap: 2', preview: <PixelPreview gap={2} particleSize={2} />, tsx: `createPixelEffect({ gap: 2, particleSize: 2 })` },
+          { label: 'gap: 4', preview: <PixelPreview gap={4} particleSize={4} />, tsx: `createPixelEffect({ gap: 4, particleSize: 4 })` },
+          { label: 'gap: 8', preview: <PixelPreview gap={8} particleSize={8} />, tsx: `createPixelEffect({ gap: 8, particleSize: 8 })` },
+        ]}
+      />
+
+      {/* ── Ease Speed ── */}
+      <PropShowcase chatUI={false} height={380} title="Ease Speed"
+        description="How quickly particles settle into position. Higher = snappier."
+        variants={[
+          { label: '0.03 (gentle)', preview: <PixelPreview easeSpeed={0.03} />, tsx: `createPixelEffect({ easeSpeed: 0.03 })` },
+          { label: '0.06 (default)', preview: <PixelPreview easeSpeed={0.06} />, tsx: `createPixelEffect({ easeSpeed: 0.06 })` },
+          { label: '0.15 (snappy)', preview: <PixelPreview easeSpeed={0.15} />, tsx: `createPixelEffect({ easeSpeed: 0.15 })` },
+        ]}
+      />
+
+      {/* ── Glow ── */}
+      <PropShowcase chatUI={false} height={380} title="Glow"
+        description="Particles emit a soft colored light matching their pixel color. Creates a neon/firefly feel."
+        variants={[
+          { label: 'glow on', preview: <PixelPreview glow glowRadius={6} />, tsx: `createPixelEffect({ glow: true, glowRadius: 6 })` },
+          { label: 'glow off', preview: <PixelPreview glow={false} />, tsx: `createPixelEffect({ glow: false })` },
+          { label: 'strong glow', preview: <PixelPreview glow glowRadius={12} />, tsx: `createPixelEffect({ glow: true, glowRadius: 12 })` },
+        ]}
+      />
+
+      {/* ── Props ── */}
+      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '40px 0 8px' }}>createPixelEffect Options</h2>
+      <PropsTable rows={[
+        { name: 'container', type: 'HTMLElement', defaultVal: '—', description: 'DOM element for canvas (required)' },
+        { name: 'image', type: 'string', defaultVal: '—', description: 'Image URL (required)' },
+        { name: 'gap', type: 'number', defaultVal: '4', description: 'Pixel sampling gap' },
+        { name: 'particleSize', type: 'number', defaultVal: '4', description: 'Particle size (px)' },
+        { name: 'loadingDuration', type: 'number', defaultVal: '1500', description: 'Drift phase duration (ms)' },
+        { name: 'assemblyDuration', type: 'number', defaultVal: '2000', description: 'Assembly wave duration (ms)' },
+        { name: 'easeSpeed', type: 'number', defaultVal: '0.06', description: 'Particle easing factor (0–1)' },
+        { name: 'overflow', type: 'number', defaultVal: '0.15', description: 'How far particles can exceed bounds (fraction)' },
+        { name: 'glow', type: 'boolean', defaultVal: 'false', description: 'Particles emit colored light matching their pixel' },
+        { name: 'glowRadius', type: 'number', defaultVal: '6', description: 'Glow blur radius (px)' },
+        { name: 'maxCanvasWidth', type: 'number', defaultVal: '320', description: 'Caps particle count by downscaling the source image before sampling' },
+        { name: 'onComplete', type: '() => void', defaultVal: '—', description: 'Called when real image is visible' },
+      ]} />
+
+      <h2 style={{ fontSize: 16, fontWeight: 600, color: t.textPrimary, margin: '40px 0 8px' }}>Instance Methods</h2>
+      <PropsTable rows={[
+        { name: 'start()', type: '() => void', defaultVal: '—', description: 'Begin the animation' },
+        { name: 'stop()', type: '() => void', defaultVal: '—', description: 'Pause the animation' },
+        { name: 'replay()', type: '() => void', defaultVal: '—', description: 'Reset and replay from loading phase' },
+        { name: 'destroy()', type: '() => void', defaultVal: '—', description: 'Clean up canvas and DOM' },
+      ]} />
     </div>
   )
 }
